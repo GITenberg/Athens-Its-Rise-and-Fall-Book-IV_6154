@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: iaJVg8fZqetUL03rpcZlT0eegsAgZgnE6l3o1lKmFifK7JxVOnb8xGep9031nQndZW2h+xydd9pYcDb7YLQgDwUskRY+CJ0dfqOyV2e1IYn34iSK+ijDykreTuhumVvKzpFRmSBRz8+nqi0mfIowxMxCnFtTG7V47g5l7ubvtqY68MML/NuqDgnkC7YQCFyhQrlt1NDY1/6TUqB1d22S8V7nymLezisP9nDYFWcnLUORFkc2wbRfwDKz6EJPGjViB36yz1q36pMOK1IGAE+yKQ+pmn20AkZQM01H6U43azsU4fZ6fuqIO4o71zfoWpQIpn8Pif9EfQ/lgs03QLXKTygtPnF7Wu8xIHDP5tD0ao+yJzm/vQucQKhKUL8Tlp6N7ftFWejatpyPBHuKE4Lkp4TclkWmK01LInFe30pHQlwhnhIzt8u3GriY6WiX7CZOYISzs8djhO36Q6uraKvs+6gd+Eir2xvPPwfqUKotqOHW/0JiqSVQRMcOYveDsTOnb/bTIcv/oF2Qh4tnA58FNp0eyPsyiUO2R5SDD23I3mFwBkYfQRU6mcMSfuTwYakDh3hIb8qq1xCrquYTNr7axhywepqPirquXLSDncM2TEukJ1eRUXjOruwOY0sHUQCfY/QsG6ZN+YKfsjCkYzVgvm+DKZelIHFdNTGlMClH57M=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Athens-Its-Rise-and-Fall-Book-IV_6154
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
